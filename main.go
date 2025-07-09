@@ -10,6 +10,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -132,6 +133,11 @@ func main() {
 		pathParam := r.URL.Query().Get("path")
 		if pathParam == "" {
 			pathParam = "unknown"
+		}
+
+		// URL decode the path parameter to handle special characters
+		if decodedPath, err := url.QueryUnescape(pathParam); err == nil {
+			pathParam = decodedPath
 		}
 
 		// Read the request body
