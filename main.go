@@ -58,12 +58,17 @@ func main() {
 	}
 
 	// Replace the callback URL placeholder with our server's callback endpoint
-	// Use HTTPS if the domain doesn't contain a port (likely a real domain)
+	// Use HTTPS for real domains (without port), HTTP for localhost
 	protocol := "http"
-	if !strings.Contains(domain, ":") {
+	if !strings.Contains(domain, ":") && domain != "localhost" {
 		protocol = "https"
 	}
-	callbackURL := fmt.Sprintf("%s://%s:%d/callback", protocol, domain, port)
+	// For real domains, use port 443 (HTTPS), for localhost use the specified port
+	callbackPort := port
+	if !strings.Contains(domain, ":") && domain != "localhost" {
+		callbackPort = 443
+	}
+	callbackURL := fmt.Sprintf("%s://%s:%d/callback", protocol, domain, callbackPort)
 	modifiedJS := strings.ReplaceAll(string(jsContent),
 		`"CALLBACK_URL_PLACEHOLDER"`,
 		callbackURL)
