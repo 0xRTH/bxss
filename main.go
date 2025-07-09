@@ -58,7 +58,12 @@ func main() {
 	}
 
 	// Replace the callback URL placeholder with our server's callback endpoint
-	callbackURL := fmt.Sprintf("http://%s:%d/callback", domain, port)
+	// Use HTTPS if the domain doesn't contain a port (likely a real domain)
+	protocol := "http"
+	if !strings.Contains(domain, ":") {
+		protocol = "https"
+	}
+	callbackURL := fmt.Sprintf("%s://%s:%d/callback", protocol, domain, port)
 	modifiedJS := strings.ReplaceAll(string(jsContent),
 		`"CALLBACK_URL_PLACEHOLDER"`,
 		callbackURL)
